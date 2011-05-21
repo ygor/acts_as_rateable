@@ -1,0 +1,5 @@
+Description:
+    run ./script/generate acts_as_rateable
+
+    no need to specify a name after acts_as_rateable as you can not change the model name for Rating
+    the acts_as_rateable_migration file will be created in db/migrate

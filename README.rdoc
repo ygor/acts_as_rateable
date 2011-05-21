@@ -1,0 +1,115 @@
+= ActsAsRateable
+
+ActsAsRateable is a plugin to allow any model to rate any other model. This is accomplished through a double polymorphic relationship on the Rating model.
+
+Main uses would be for Users to rate other Objects, e.g. Books, Bands, etc...
+
+== Installation
+
+Run the following command:
+  rails plugin install git://github.com/ygor/acts_as_rateable.git
+
+Run the generator:
+  rails generate acts_as_rateable
+
+== Usage
+
+=== Setup
+
+For your model(s) that you want to allow to be rated and, just add the mixin:
+  class Book < ActiveRecord::Base
+    ...
+    acts_as_rateable
+    ...
+  end
+
+Make your model(s) that can rate other models acts_as_rater
+  class User < ActiveRecord::Base
+    ...
+    acts_as_rater
+    ...
+  end
+
+---
+
+=== acts_as_rater methods
+
+To have an object rate another use the following:
+  book = Book.find(1)
+  user = User.find(1)
+  user.rate(book, 7) # Creates a record for the user as the rater and the book as the rateable
+
+To unrate an object use the following
+  user.unrate(book) # Deletes that record in the Rating table
+
+You can check to see if an object that acts_as_rater has rated another object through the following:
+  user.rated?(book) # Returns true or false
+
+To get the total number (count) of rates for a user use the following on a model that acts_as_rater
+  user.rates_count # Returns and integer
+
+To get rating records use the following
+  user.all_rates # returns an array of Rating records
+
+To get all of the records that an object has rated use the following
+  user.all_rated
+  # Returns an array of every rated object for the user, this can be a collection of different object types, eg: User, Book
+
+To get all Rating records by a certain type use the following
+  user.rates_by_type('Book') # returns an array of Rating objects where the rateable_type is 'Book'
+
+To get all rated objects by a certain type use the following.
+  user.rated_by_type('Book') # Returns an array of all rated objects for user where rateable_type is 'Book', this can be a collection of different object types, eg: User, Book
+
+There is also a method_missing to accomplish the exact same thing a rated_by_type('Book') to make you life easier
+  user.rated_users # exact same results as user.rated_by_type('User')
+
+To get the count of all Rating records by a certain type use the following
+  user.rated_by_type_count('Book') # Returns the sql count of the number of rated books by that user
+
+There is also a method_missing to get the count by type
+  user.rated_books_count # Calls the user.rated_by_type_count('Book') method
+
+---
+
+=== acts_as_rateable methods
+
+To get all the raters of a model that acts_as_rateable
+  book.raters  # Returns an array of all the raters for that book, a collection of different object types (eg. type User or type Book)
+
+To get just the number of raters use
+  book.raters_count
+
+To get the raters of a certain type, eg: all raters of type 'User'
+  book.raters_by_type('User') # Returns an array of the user raters
+
+There is also a method_missing for this to make it easier:
+  book.user_raters # Calls raters_by_type('User')
+
+To get just the sql count of the number of raters of a certain type use the following
+  book.raters_by_type_count('User') # Return the count on the number of raters of type 'User'
+
+Again, there is a method_missing for this method as well
+  book.count_user_raters # Calls raters_by_type_count('User')
+
+To see is a model that acts_as_rateable has been rated by a model that acts_as_rater use the following
+  book.rated_by?(user)
+
+---
+
+=== Rating Model
+
+The Rating model has a set of named_scope's.  In case you want to interface directly with the Rating model you can
+use them.
+
+  Rating.descending # returns all records in a descending order based on created_at datetime
+
+This method pulls all records created after a certain date.  The default is 2 weeks but it takes an optional parameter.
+  Rating.recent
+  Rating.recent(4.weeks.ago)
+
+Rating.for_rater is a named_scope that is mainly there to reduce code in the modules but it could be used directly. It takes an object and will return all Rating records where the rater is the record passed in.
+  Rating.for_rater(user)
+
+Rating.for_rateable acts the same as its counterpart (for_rater). It is mainly there to reduce duplication, however it can be used directly.  It takes an object that is the rated object and return all Rating records where that record is the rateable.
+  Rating.for_rateable(book)
