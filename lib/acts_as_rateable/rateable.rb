@@ -16,7 +16,7 @@ module ActsAsRateable #:nodoc:
     module InstanceMethods
 
       # Returns the number of raters a record has.
-      def raters_count
+      def ratings_count
         self.ratings.count
       end
 

@@ -8,7 +8,7 @@ class ActsAsRateableTest < ActiveSupport::TestCase
     end
 
     should "be defined" do
-      assert @beatles.respond_to?(:raters_count)
+      assert @beatles.respond_to?(:ratings_count)
       assert @beatles.respond_to?(:raters)
       assert @beatles.respond_to?(:rated_by?)
     end
@@ -23,18 +23,18 @@ class ActsAsRateableTest < ActiveSupport::TestCase
       @sam.rate(@jon, 5)
     end
 
-    context "raters_count" do
-      should "return the number of raters" do
-        assert_equal 0, @sam.raters_count
-        assert_equal 1, @jon.raters_count
+    context "ratings_count" do
+      should "return the number of ratings" do
+        assert_equal 0, @sam.ratings_count
+        assert_equal 1, @jon.ratings_count
       end
 
-      should "return the proper number of multiple raters" do
+      should "return the proper number of multiple ratings" do
         @bob = Factory(:bob)
         @sam.rate(@bob, 5)
-        assert_equal 0, @sam.raters_count
-        assert_equal 1, @jon.raters_count
-        assert_equal 1, @bob.raters_count
+        assert_equal 0, @sam.ratings_count
+        assert_equal 1, @jon.ratings_count
+        assert_equal 1, @bob.ratings_count
       end
     end
 
@@ -71,14 +71,14 @@ class ActsAsRateableTest < ActiveSupport::TestCase
 
     context "destroying a rater" do
       setup do
-        @ratings_count = Rating.count
-        @raters_count = @jon.raters_count
+        @total_num_ratings = Rating.count
+        @ratings_count = @jon.ratings_count
         @sam.destroy
       end
 
       should 'decrease rater count by one' do
-        assert_equal @ratings_count -1, Rating.count
-        assert_equal @raters_count -1, @jon.raters_count
+        assert_equal @total_num_ratings -1, Rating.count
+        assert_equal @ratings_count -1, @jon.ratings_count
       end
     end
     
